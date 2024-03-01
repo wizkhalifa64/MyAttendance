@@ -1,9 +1,7 @@
 package com.example.myattendance.ui.components.auth
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,12 +20,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,22 +34,28 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.myattendance.gql.LoginFunction
+import kotlinx.coroutines.launch
 
 object Login {
     private val viewModel = LogInViewModel();
 
     class LogInViewModel {
-        var username by mutableStateOf("")
+        var email by mutableStateOf("")
             private set
         var password by mutableStateOf("")
             private set
 
         fun updateUsername(input: String) {
-            username = input
+            email = input
         }
 
         fun updatePassword(input: String) {
             password = input
+        }
+
+        suspend fun handleLogIn() {
+            LoginFunction(email, password)
         }
     }
 
@@ -110,7 +113,7 @@ object Login {
                             contentDescription = ""
                         )
                         BasicTextField2(
-                            value = viewModel.username,
+                            value = viewModel.email,
                             onValueChange = { username ->
                                 viewModel.updateUsername(username)
                             },
@@ -152,9 +155,16 @@ object Login {
                         Spacer(modifier = Modifier.height(15.dp))
                     }
                     Row {
+                        val scope = rememberCoroutineScope()
                         Button(
-                            onClick = { /*TODO*/ },
-                            modifier = Modifier.fillMaxWidth().padding(12.dp),
+                            onClick = {
+                                scope.launch {
+                                    viewModel.handleLogIn()
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(Color.LightGray)
                         ) {

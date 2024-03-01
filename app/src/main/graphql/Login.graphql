@@ -1,6 +1,27 @@
-query LoginOrganization($body: OrganizationLogin!) {
+query RootQuery($body: OrganizationLogin!) {
     loginOrganization(body: $body) {
+#        id
+#        name
+#        email
+#        mobile
+#        picturePath
+#        paymentStructure
+#        location
+#        address {
+#            id
+#            city
+#            street
+#            housenumber
+#            state
+#            pin
+#        }
+#        roles {
+#            id
+#            name
+#            position
+#            parent
+#        }
+#        paid
         token
-        name
     }
 }
