@@ -1,0 +1,6 @@
+query LoginOrganization($body: OrganizationLogin!) {
+    loginOrganization(body: $body) {
+        token
+        name
+    }
+}

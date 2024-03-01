@@ -3,5 +3,5 @@ package com.example.myattendance
 import com.apollographql.apollo3.ApolloClient
 
 val apolloClient = ApolloClient.Builder()
-    .serverUrl("https://apollo-fullstack-tutorial.herokuapp.com/graphql")
+    .serverUrl("https://localhost:8000/rust-graphql")
     .build()
