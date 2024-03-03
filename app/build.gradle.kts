@@ -69,7 +69,10 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("io.coil-kt:coil:2.6.0")
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("io.coil-kt:coil-svg:2.6.0")
     implementation("com.apollographql.apollo3:apollo-runtime:3.8.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+
 }
 apollo {
     service("service") {

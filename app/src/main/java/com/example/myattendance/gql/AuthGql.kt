@@ -1,19 +1,19 @@
 package com.example.myattendance.gql
 
-import android.util.Log
+import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.exception.ApolloException
-import com.example.myattendance.RootQuery
+import com.example.myattendance.LoginOrganizationQuery
 import com.example.myattendance.apolloClient
 import com.example.myattendance.type.OrganizationLogin
 
-suspend fun LoginFunction(email: String, password: String): Boolean {
-    try {
-        Log.w("Error", "starting")
-       val res = apolloClient.query(RootQuery(OrganizationLogin(email, password))).execute()
-        res.data?.loginOrganization?.let { Log.e("data", it.token) }
+suspend fun loginFunction(
+    email: String,
+    password: String
+): ApolloResponse<LoginOrganizationQuery.Data> {
+    val response = try {
+        apolloClient.query(LoginOrganizationQuery(OrganizationLogin(email, password))).execute()
     } catch (e: ApolloException) {
-        Log.w("Error", e)
-        return false
+        throw e
     }
-    return true
+    return response
 }

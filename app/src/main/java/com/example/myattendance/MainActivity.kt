@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.myattendance.ui.components.auth.Login
+import com.example.myattendance.ui.components.home.HomeScreen
 import com.example.myattendance.ui.theme.MyAttendanceTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,7 +24,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                   Login.LogInScreen()
+//                   Login.LogInScreen()
+                    HomeScreen()
                 }
             }
         }
