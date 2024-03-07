@@ -1,7 +1,7 @@
 package com.example.myattendance.ui.components.auth
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,145 +9,142 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.MailOutline
-import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.apollographql.apollo3.exception.ApolloException
-import com.example.myattendance.gql.loginFunction
-import kotlinx.coroutines.launch
+import androidx.compose.ui.unit.toSize
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 
-object Login {
-    private val viewModel = LogInViewModel();
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun LogInScreen(navigate: NavHostController) {
+    val viewModel = viewModel<LoginHandler>()
+    val state = viewModel.loginState
+    val context = LocalContext.current
+    LaunchedEffect(key1 = context) {
+        viewModel.validationEvents.collect { event ->
+            when (event) {
+                is LoginHandler.ValidationEvent.Success -> {
 
-    class LogInViewModel {
-        var email by mutableStateOf("")
-            private set
-        var password by mutableStateOf("")
-            private set
-
-        fun updateUsername(input: String) {
-            email = input
-        }
-
-        fun updatePassword(input: String) {
-            password = input
-        }
-
-        suspend fun handleLogIn(
-            snackBarHostState: SnackbarHostState, loading: MutableState<Boolean>
-        ) {
-            try {
-                val res = loginFunction(email, password);
-                loading.value = false
-                if (res.hasErrors()) {
-                    snackBarHostState.showSnackbar(res.errors?.get(0)?.message.toString())
                 }
-            } catch (e: ApolloException) {
-                loading.value = false
-                snackBarHostState.showSnackbar(e.message.toString())
             }
-
         }
     }
+    Scaffold {
+        var mTextFieldSize by remember { mutableStateOf(Size.Zero) }
+        var mExpanded by remember { mutableStateOf(false) }
+        val icon = if (mExpanded) Icons.Filled.KeyboardArrowUp
+        else Icons.Filled.KeyboardArrowDown
+        val mCities =
+            listOf("Delhi", "Mumbai", "Chennai", "Kolkata", "Hyderabad", "Bengaluru", "Pune")
+        Column(modifier = Modifier.padding(20.dp)) {
+            Spacer(modifier = Modifier.height(100.dp))
+            Text(text = "Sign In", style = MaterialTheme.typography.displaySmall)
+            Spacer(modifier = Modifier.height(30.dp))
+            OutlinedTextField(value = state.name,
+                onValueChange = {
+                    viewModel.loginChangeHandler(LoginOrgFormEvent.organizationNameChange(it))
+                },
+                leadingIcon = { Icon(imageVector = Icons.Rounded.Person, contentDescription = "") },
+                modifier = Modifier.fillMaxWidth(),
+                isError = state.nameError != null,
+                label = { Text(text = "Name") },
+                supportingText = { Text(text = if (state.nameError !== null) state.nameError else "") })
 
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-    @OptIn(ExperimentalFoundationApi::class)
-    @Composable
-    fun LogInScreen() {
-        val scope = rememberCoroutineScope()
-        val snackBarHostState = remember { SnackbarHostState() }
-        val loading = remember {
-            mutableStateOf(false)
-        }
-        Scaffold(snackbarHost = {
-            SnackbarHost(hostState = snackBarHostState)
-        }) {
-            Column(modifier = Modifier.padding(20.dp)) {
-                Spacer(modifier = Modifier.height(45.dp))
-                Text(
-                    text = "Log in to your account",
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Welcome back! Please enter your details", color = Color.Gray,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.height(85.dp))
-                OutlinedTextField(value = viewModel.email,
-                    onValueChange = { username ->
-                        viewModel.updateUsername(username)
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = "Email") },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Rounded.MailOutline,
-                            contentDescription = ""
-                        )
-                    })
-                Spacer(modifier = Modifier.height(12.dp))
-                OutlinedTextField(value = viewModel.password,
-                    onValueChange = { password ->
-                        viewModel.updatePassword(password)
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Rounded.Lock, contentDescription = ""
-                        )
-                    },
-                    label = { Text(text = "Password") })
-                Spacer(modifier = Modifier.height(12.dp))
-                Button(
-                    onClick = {
-                        scope.launch {
-                            loading.value = true
-                            viewModel.handleLogIn(snackBarHostState, loading)
-                        }
-                    },
-                    enabled = !loading.value,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(
-                        text = if (loading.value) "Signing in..." else "Sign In",
-                        fontWeight = FontWeight.Bold
+            OutlinedTextField(value = state.email,
+                onValueChange = {
+                    viewModel.loginChangeHandler(LoginOrgFormEvent.emailChange(it))
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.MailOutline, contentDescription = ""
                     )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                isError = state.emailError != null,
+                label = { Text(text = "Email") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                supportingText = { Text(text = if (state.emailError !== null) state.emailError else "") })
+            OutlinedTextField(value = state.location,
+                onValueChange = { viewModel.loginChangeHandler(LoginOrgFormEvent.locationChange(it)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onGloballyPositioned { coordinates ->
+                        mTextFieldSize = coordinates.size.toSize()
+                    },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.LocationOn, contentDescription = ""
+                    )
+                },
+                readOnly = true,
+                label = { Text("Location") },
+                trailingIcon = {
+                    Icon(icon, "contentDescription", Modifier.clickable { mExpanded = !mExpanded })
+                })
+            OutlinedTextField(
+                value = state.password,
+                onValueChange = { viewModel.loginChangeHandler(LoginOrgFormEvent.passwordChange(it)) },
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.Lock, contentDescription = ""
+                    )
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
 
+                label = { Text("Password") },
+            )
+            DropdownMenu(
+                expanded = mExpanded,
+                onDismissRequest = { mExpanded = false },
+                modifier = Modifier.width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
+            ) {
+                mCities.forEach { label ->
+                    DropdownMenuItem(text = { Text(text = label) }, onClick = {
+                        viewModel.loginChangeHandler(LoginOrgFormEvent.locationChange(label))
+                        mExpanded = false
+                    })
                 }
-
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+                Button(
+                    onClick = { navigate.navigate("homeScreen") },
+                    modifier = Modifier.weight(weight = 0.5f)
+                ) {
+                    Text(text = "Sign In")
+                }
+            }
         }
-
-
     }
 }

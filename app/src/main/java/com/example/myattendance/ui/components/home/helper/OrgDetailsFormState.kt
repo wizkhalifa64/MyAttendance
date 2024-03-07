@@ -1,4 +1,4 @@
-package com.example.myattendance.ui.components.home
+package com.example.myattendance.ui.components.home.helper
 
 data class OrgDetailsFormState(
     val orgName: String = "",

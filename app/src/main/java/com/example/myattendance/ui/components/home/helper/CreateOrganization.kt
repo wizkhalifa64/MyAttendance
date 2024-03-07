@@ -1,11 +1,10 @@
-package com.example.myattendance.ui.components.home
+package com.example.myattendance.ui.components.home.helper
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myattendance.ui.components.validation.ValidateInt
 import com.example.myattendance.ui.components.validation.ValidateString
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow

@@ -1,4 +1,4 @@
-package com.example.myattendance.ui.components.home
+package com.example.myattendance.ui.components.home.helper
 
 sealed class OrgDetailsFormEvent {
     data class OrgNameChange(val orgName: String) : OrgDetailsFormEvent()
