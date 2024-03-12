@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myattendance.ui.components.validation.ValidateMap
 import com.example.myattendance.ui.components.validation.ValidateString
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -12,6 +13,7 @@ import kotlinx.coroutines.launch
 
 class LoginHandler(
     private val validateString: ValidateString = ValidateString(),
+    private val validateMap: ValidateMap = ValidateMap()
 ) : ViewModel() {
     var loginState by mutableStateOf(LoginHandlerData())
     private val validationEventChannel = Channel<ValidationEvent>()
@@ -19,34 +21,36 @@ class LoginHandler(
 
     fun loginChangeHandler(event: LoginOrgFormEvent) {
         when (event) {
-            is LoginOrgFormEvent.emailChange -> {
+            is LoginOrgFormEvent.EmailChange -> {
                 loginState = loginState.copy(email = event.email)
             }
 
-            is LoginOrgFormEvent.passwordChange -> {
+            is LoginOrgFormEvent.PasswordChange -> {
                 loginState = loginState.copy(password = event.password)
             }
 
-            is LoginOrgFormEvent.locationChange -> {
+            is LoginOrgFormEvent.LocationChange -> {
                 loginState = loginState.copy(location = event.location)
             }
 
-            is LoginOrgFormEvent.organizationNameChange -> {
+            is LoginOrgFormEvent.OrganizationNameChange -> {
                 loginState = loginState.copy(name = event.name)
             }
 
-            is LoginOrgFormEvent.submit -> {
-                submitLogin()
+            is LoginOrgFormEvent.Submit -> {
+                submitLogin(event.type)
             }
         }
     }
 
-    private fun submitLogin() {
+    private fun submitLogin(type: String) {
+        print(type)
         val name = validateString.execute(loginState.name)
-        val location = validateString.execute(loginState.location)
+        val location = validateMap.execute(loginState.location)
         val email = validateString.execute(loginState.email)
         val password = validateString.execute(loginState.password)
         val hasError = listOf(name, email, password, location).any { !it.successful }
+        val hasErrorLogin = listOf(email, password).any { !it.successful }
         if (hasError) {
             loginState = loginState.copy(
                 nameError = name.errorMessage,

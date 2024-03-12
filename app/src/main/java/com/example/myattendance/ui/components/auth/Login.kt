@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.MailOutline
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -26,12 +28,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -46,6 +50,9 @@ import androidx.navigation.NavHostController
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun LogInScreen(navigate: NavHostController) {
+    val type = remember {
+        mutableStateOf("signIn")
+    }
     val viewModel = viewModel<LoginHandler>()
     val state = viewModel.loginState
     val context = LocalContext.current
@@ -63,25 +70,83 @@ fun LogInScreen(navigate: NavHostController) {
         var mExpanded by remember { mutableStateOf(false) }
         val icon = if (mExpanded) Icons.Filled.KeyboardArrowUp
         else Icons.Filled.KeyboardArrowDown
-        val mCities =
-            listOf("Delhi", "Mumbai", "Chennai", "Kolkata", "Hyderabad", "Bengaluru", "Pune")
-        Column(modifier = Modifier.padding(20.dp)) {
-            Spacer(modifier = Modifier.height(100.dp))
-            Text(text = "Sign In", style = MaterialTheme.typography.displaySmall)
+        val mCities = listOf(
+            mapOf("label" to "India", "value" to "91"),
+            mapOf("label" to "United States OF America", "value" to "110")
+        )
+        Column(
+            modifier = Modifier
+                .padding(20.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(text = "Sign in", style = MaterialTheme.typography.displaySmall)
+            Text(
+                text = "Welcome back! Please enter your details",
+                style = MaterialTheme.typography.labelLarge
+            )
             Spacer(modifier = Modifier.height(30.dp))
-            OutlinedTextField(value = state.name,
-                onValueChange = {
-                    viewModel.loginChangeHandler(LoginOrgFormEvent.organizationNameChange(it))
-                },
-                leadingIcon = { Icon(imageVector = Icons.Rounded.Person, contentDescription = "") },
-                modifier = Modifier.fillMaxWidth(),
-                isError = state.nameError != null,
-                label = { Text(text = "Name") },
-                supportingText = { Text(text = if (state.nameError !== null) state.nameError else "") })
+            if (type.value == "signIn") {
+                OutlinedTextField(value = state.name,
+                    onValueChange = {
+                        viewModel.loginChangeHandler(LoginOrgFormEvent.OrganizationNameChange(it))
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Rounded.Person, contentDescription = ""
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = state.nameError != null,
+                    label = { Text(text = "Name") },
+                    supportingText = { state.nameError?.let { Text(text = state.nameError) } })
+                OutlinedTextField(value = state.location["label"].toString(),
+                    onValueChange = {
+                        viewModel.loginChangeHandler(
+                            LoginOrgFormEvent.LocationChange(
+                                mapOf("label" to "", "value" to it)
+                            )
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onGloballyPositioned { coordinates ->
+                            mTextFieldSize = coordinates.size.toSize()
+                        },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Rounded.LocationOn, contentDescription = ""
+                        )
+                    },
+                    isError = state.locationError != null,
+                    readOnly = true,
+                    label = { Text("Location") },
+                    trailingIcon = {
+                        Icon(icon,
+                            "contentDescription",
+                            Modifier.clickable { mExpanded = !mExpanded })
+                    },
+                    supportingText = { state.locationError?.let { Text(text = state.locationError) } })
+                DropdownMenu(expanded = mExpanded,
+                    onDismissRequest = { mExpanded = false },
+                    modifier = Modifier.width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
+                ) {
+                    mCities.forEach { label ->
+                        DropdownMenuItem(text = { label["label"]?.let { it1 -> Text(text = it1) } },
+                            onClick = {
+                                viewModel.loginChangeHandler(
+                                    LoginOrgFormEvent.LocationChange(
+                                        label
+                                    )
+                                )
+                            })
+                    }
+                }
 
+            }
             OutlinedTextField(value = state.email,
                 onValueChange = {
-                    viewModel.loginChangeHandler(LoginOrgFormEvent.emailChange(it))
+                    viewModel.loginChangeHandler(LoginOrgFormEvent.EmailChange(it))
                 },
                 leadingIcon = {
                     Icon(
@@ -92,27 +157,9 @@ fun LogInScreen(navigate: NavHostController) {
                 isError = state.emailError != null,
                 label = { Text(text = "Email") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                supportingText = { Text(text = if (state.emailError !== null) state.emailError else "") })
-            OutlinedTextField(value = state.location,
-                onValueChange = { viewModel.loginChangeHandler(LoginOrgFormEvent.locationChange(it)) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onGloballyPositioned { coordinates ->
-                        mTextFieldSize = coordinates.size.toSize()
-                    },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Rounded.LocationOn, contentDescription = ""
-                    )
-                },
-                readOnly = true,
-                label = { Text("Location") },
-                trailingIcon = {
-                    Icon(icon, "contentDescription", Modifier.clickable { mExpanded = !mExpanded })
-                })
-            OutlinedTextField(
-                value = state.password,
-                onValueChange = { viewModel.loginChangeHandler(LoginOrgFormEvent.passwordChange(it)) },
+                supportingText = { state.emailError?.let { Text(text = state.emailError) } })
+            OutlinedTextField(value = state.password,
+                onValueChange = { viewModel.loginChangeHandler(LoginOrgFormEvent.PasswordChange(it)) },
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = {
                     Icon(
@@ -120,29 +167,48 @@ fun LogInScreen(navigate: NavHostController) {
                     )
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-
+                isError = state.passwordError != null,
                 label = { Text("Password") },
-            )
-            DropdownMenu(
-                expanded = mExpanded,
-                onDismissRequest = { mExpanded = false },
-                modifier = Modifier.width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
-            ) {
-                mCities.forEach { label ->
-                    DropdownMenuItem(text = { Text(text = label) }, onClick = {
-                        viewModel.loginChangeHandler(LoginOrgFormEvent.locationChange(label))
-                        mExpanded = false
-                    })
-                }
-            }
+                supportingText = { state.passwordError?.let { Text(text = state.passwordError) } })
 
             Spacer(modifier = Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 Button(
-                    onClick = { navigate.navigate("homeScreen") },
+                    onClick = { viewModel.loginChangeHandler(LoginOrgFormEvent.Submit(type = type.value)) /* navigate.navigate("homeScreen") */ },
                     modifier = Modifier.weight(weight = 0.5f)
                 ) {
                     Text(text = "Sign In")
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 6.dp, end = 6.dp, top = 15.dp, bottom = 15.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Divider(
+                    modifier = Modifier
+                        .height(1.dp)
+                        .weight(0.3f)
+                )
+                Text(text = "Or", modifier = Modifier.padding(start = 5.dp, end = 5.dp))
+                Divider(
+                    modifier = Modifier
+                        .height(1.dp)
+                        .weight(0.3f)
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(text = if (type.value == "signIn") "Log in your account" else "Register here")
+                TextButton(onClick = {
+                    type.value = if (type.value == "signIn") "login" else "signIn"
+                }) {
+                    Text(text = if (type.value == "signIn") "Log in" else "Sign in")
                 }
             }
         }

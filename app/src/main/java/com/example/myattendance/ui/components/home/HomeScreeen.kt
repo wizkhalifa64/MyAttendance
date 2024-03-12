@@ -25,7 +25,7 @@ import androidx.navigation.NavHostController
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    Scaffold {
+    Scaffold(modifier = Modifier.background(Color.Black)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
