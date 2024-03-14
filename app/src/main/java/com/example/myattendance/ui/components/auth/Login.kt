@@ -62,6 +62,9 @@ fun LogInScreen(navigate: NavHostController) {
                 is LoginHandler.ValidationEvent.Success -> {
 
                 }
+                is LoginHandler.ValidationEvent.Error->{
+
+                }
             }
         }
     }
