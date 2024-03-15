@@ -69,14 +69,14 @@ class LoginHandler(
 
     private fun errorHandler(validationResult: ValidationResult): String? {
         return if (validationResult.successful) {
-            viewModelScope.launch {
-                validationEventChannel.send(ValidationEvent.Success)
-            }
+//            viewModelScope.launch {
+//                validationEventChannel.send(ValidationEvent.Success)
+//            }
             null
         } else {
-            viewModelScope.launch {
-                validationEventChannel.send(ValidationEvent.Error)
-            }
+//            viewModelScope.launch {
+//                validationEventChannel.send(ValidationEvent.Error)
+//            }
             validationResult.errorMessage
         }
     }
@@ -96,11 +96,11 @@ class LoginHandler(
                 locationError = location.errorMessage
             )
             viewModelScope.launch {
-                validationEventChannel.send(ValidationEvent.Success)
+                validationEventChannel.send(ValidationEvent.Error)
             }
         }else{
             viewModelScope.launch {
-                validationEventChannel.send(ValidationEvent.Error)
+                validationEventChannel.send(ValidationEvent.Success)
             }
         }
 
