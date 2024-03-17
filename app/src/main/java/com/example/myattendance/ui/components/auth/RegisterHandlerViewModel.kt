@@ -30,7 +30,7 @@ class RegisterHandlerViewModel(
                 registerState = registerState.copy(email = event.email)
                 val check = errorHandler(validateEmail.execute(event.email))
                 if (!check.toBoolean()) {
-                    Log.d("Error", check.toString())
+
                     registerState = registerState.copy(emailError = check)
                 }
             }
@@ -39,7 +39,6 @@ class RegisterHandlerViewModel(
                 registerState = registerState.copy(password = event.password)
                 val check = errorHandler(validateString.execute(event.password))
                 if (!check.toBoolean()) {
-                    Log.d("Error", check.toString())
                     registerState = registerState.copy(passwordError = check)
                 }
             }
@@ -48,7 +47,6 @@ class RegisterHandlerViewModel(
                 registerState = registerState.copy(location = event.location)
                 val check = errorHandler(validateMap.execute(event.location))
                 if (!check.toBoolean()) {
-                    Log.d("Error", check.toString())
                     registerState = registerState.copy(locationError = check)
                 }
             }
@@ -57,7 +55,6 @@ class RegisterHandlerViewModel(
                 registerState = registerState.copy(name = event.name)
                 val check = errorHandler(validateString.execute(event.name))
                 if (!check.toBoolean()) {
-                    Log.d("Error", check.toString())
                     registerState = registerState.copy(nameError = check)
                 }
             }
@@ -95,7 +92,10 @@ class RegisterHandlerViewModel(
         viewModelScope.launch {
             try {
                 val res = AuthService().register(
-                    registerState.email, registerState.password, registerState.location, registerState.name
+                    registerState.email,
+                    registerState.password,
+                    registerState.location,
+                    registerState.name
                 )
                 if (res.hasErrors()) {
                     res.errors?.get(0)?.message?.let {
@@ -107,8 +107,14 @@ class RegisterHandlerViewModel(
                     }
 
                 }
-                res.data?.createOrganization?.let { Log.d("Token", it.token) }
-                validationEventChannel.send(ValidationEvent.Success)
+                res.data?.createOrganization?.let {
+                    validationEventChannel.send(
+                        ValidationEvent.Success(
+                            it.token
+                        )
+                    )
+                }
+
             } catch (e: ApolloException) {
                 e.message?.let { validationEventChannel.send(ValidationEvent.Error(it)) }
             }
@@ -120,7 +126,7 @@ class RegisterHandlerViewModel(
     }
 
     sealed class ValidationEvent {
-        data object Success : ValidationEvent()
+        data class Success(val token: String) : ValidationEvent()
         data class Error(val err: String) : ValidationEvent()
     }
 }

@@ -6,29 +6,43 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myattendance.ui.components.validation.ValidateEmail
-import com.example.myattendance.ui.components.validation.ValidateMap
 import com.example.myattendance.ui.components.validation.ValidateString
 import com.example.myattendance.ui.components.validation.ValidationResult
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class LoginHandlerViewModel(
     private val validateString: ValidateString = ValidateString(),
     private val validateEmail: ValidateEmail = ValidateEmail(),
-    private val validateMap: ValidateMap = ValidateMap()
 ) : ViewModel() {
     var loginState by mutableStateOf(RegisterHandlerData())
+    private val validationEventChannel = Channel<LoginHandlerViewModel.ValidationEvent>()
+    val validationEvents = validationEventChannel.receiveAsFlow()
     fun loginChangeHandler(event: LoginOrgFormEvent) {
         when (event) {
             is LoginOrgFormEvent.EmailChange -> {
-
+                loginState = loginState.copy(
+                    email = event.email
+                )
+                val check = errorHandler(validateEmail.execute(event.email))
+                if (!check.toBoolean()) {
+                    loginState = loginState.copy(emailError = check)
+                }
             }
 
             is LoginOrgFormEvent.PasswordChange -> {
-
+                loginState = loginState.copy(
+                    password = event.password
+                )
+                val check = errorHandler(validateEmail.execute(event.password))
+                if (!check.toBoolean()) {
+                    loginState = loginState.copy(passwordError = check)
+                }
             }
 
             is LoginOrgFormEvent.Submit -> {
-
+                submitRegister()
             }
         }
     }
@@ -44,7 +58,9 @@ class LoginHandlerViewModel(
             )
             return
         }
-        viewModelScope.launch {}
+        viewModelScope.launch {
+
+        }
     }
 
     private fun errorHandler(validationResult: ValidationResult): String? {
@@ -56,7 +72,7 @@ class LoginHandlerViewModel(
     }
 
     sealed class ValidationEvent {
-        data object Success : ValidationEvent()
+        data class Success(val token: String) : ValidationEvent()
         data class Error(val err: String) : ValidationEvent()
     }
 }
