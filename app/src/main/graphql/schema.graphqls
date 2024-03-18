@@ -53,6 +53,15 @@ input EmployeeAccess {
   write: [Access!]!
 }
 
+type EmployeeAttendance {
+  id: Int!
+  employeeId: Int!
+  orgId: String!
+  clockIn: DateTime!
+  clockOut: DateTime
+  createdAt: DateTime!
+}
+
 input EmployeeLoginInput {
   employeeEmail: String!
   employeePassword: String!
@@ -99,7 +108,8 @@ type LoginResponse {
 type Mutation {
   createEmployee(body: EmployeeRegisterInput!): Int!
   createPermission(body: EmployeeAccess!): String!
-  createAttendence: String!
+  createAttendence: EmployeeAttendance!
+  updateAttendence: EmployeeAttendance!
   createOrganization(body: OrganizationRegister!): OrganizationResponse!
   createRole(body: RoleInput!): String!
   updateRoleById(body: RoleInput!): String!

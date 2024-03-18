@@ -1,10 +1,12 @@
 package com.example.myattendance.ui.components.auth
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.apollographql.apollo3.exception.ApolloException
 import com.example.myattendance.ui.components.validation.ValidateEmail
 import com.example.myattendance.ui.components.validation.ValidateString
 import com.example.myattendance.ui.components.validation.ValidationResult
@@ -19,9 +21,9 @@ class LoginHandlerViewModel(
     var loginState by mutableStateOf(RegisterHandlerData())
     private val validationEventChannel = Channel<LoginHandlerViewModel.ValidationEvent>()
     val validationEvents = validationEventChannel.receiveAsFlow()
-    fun loginChangeHandler(event: LoginOrgFormEvent) {
+    fun loginChangeHandler(event: LoginFormEvent) {
         when (event) {
-            is LoginOrgFormEvent.EmailChange -> {
+            is LoginFormEvent.EmailChange -> {
                 loginState = loginState.copy(
                     email = event.email
                 )
@@ -31,23 +33,29 @@ class LoginHandlerViewModel(
                 }
             }
 
-            is LoginOrgFormEvent.PasswordChange -> {
+            is LoginFormEvent.PasswordChange -> {
                 loginState = loginState.copy(
                     password = event.password
                 )
-                val check = errorHandler(validateEmail.execute(event.password))
+                val check = errorHandler(validateString.execute(event.password))
                 if (!check.toBoolean()) {
                     loginState = loginState.copy(passwordError = check)
                 }
             }
 
-            is LoginOrgFormEvent.Submit -> {
-                submitRegister()
+            is LoginFormEvent.OrganizationLogin -> {
+//                Log.d("Admin","check")
+                submitAuthLogin()
+            }
+
+            is LoginFormEvent.EmployeeLogin -> {
+//                Log.d("Employee","check")
+                submitEmployeeAuthLogin()
             }
         }
     }
 
-    private fun submitRegister() {
+    private fun submitAuthLogin() {
         val email = validateString.execute(loginState.email)
         val password = validateString.execute(loginState.password)
         val hasError = listOf(email, password).any { !it.successful }
@@ -62,6 +70,47 @@ class LoginHandlerViewModel(
 
         }
     }
+
+    private fun submitEmployeeAuthLogin() {
+        val email = validateString.execute(loginState.email)
+        val password = validateString.execute(loginState.password)
+        val hasError = listOf(email, password).any { !it.successful }
+        if (hasError) {
+            loginState = loginState.copy(
+                emailError = email.errorMessage,
+                passwordError = password.errorMessage,
+            )
+            Log.d("Test","Err")
+            return
+        }
+        viewModelScope.launch {
+            try {
+                Log.d("Test","hit")
+                val res = AuthService().employeeLogin(
+                    loginState.email,
+                    loginState.password,
+
+                    )
+                if (res.hasErrors()) {
+                    res.errors?.get(0)?.message?.let {
+                        validationEventChannel.send(
+                            ValidationEvent.Error(it)
+                        )
+                    }
+
+                }
+                res.data?.loginEmployee?.let {
+                    validationEventChannel.send(
+                        ValidationEvent.Success(it.token)
+                    )
+                }
+
+            } catch (e: ApolloException) {
+                e.message?.let { validationEventChannel.send(ValidationEvent.Error(it)) }
+            }
+        }
+    }
+
 
     private fun errorHandler(validationResult: ValidationResult): String? {
         return if (validationResult.successful) {

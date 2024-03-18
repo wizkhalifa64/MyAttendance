@@ -1,6 +1,7 @@
 package com.example.myattendance.ui.components.auth
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +17,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun LogInScreen() {
+fun LogInScreen(role: String?) {
     val viewModel = viewModel<LoginHandlerViewModel>()
     val state = viewModel.loginState
     val scope = rememberCoroutineScope()
@@ -69,7 +69,7 @@ fun LogInScreen() {
     Spacer(modifier = Modifier.height(30.dp))
     OutlinedTextField(value = state.email,
         onValueChange = {
-            viewModel.loginChangeHandler(LoginOrgFormEvent.EmailChange(it))
+            viewModel.loginChangeHandler(LoginFormEvent.EmailChange(it))
         },
         leadingIcon = {
             Icon(
@@ -84,7 +84,7 @@ fun LogInScreen() {
     OutlinedTextField(value = state.password,
         onValueChange = {
             viewModel.loginChangeHandler(
-                LoginOrgFormEvent.PasswordChange(
+                LoginFormEvent.PasswordChange(
                     it
                 )
             )
@@ -102,8 +102,18 @@ fun LogInScreen() {
     Spacer(modifier = Modifier.height(12.dp))
     Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
         Button(
-            onClick = { viewModel.loginChangeHandler(LoginOrgFormEvent.Submit) /* navigate.navigate("homeScreen") */ },
-            modifier = Modifier.weight(weight = 0.5f)
+            onClick = {
+                if (role != null) {
+                    Log.d("Hit check",role)
+                }
+                if (role == "ADMIN") {
+                    viewModel.loginChangeHandler(LoginFormEvent.OrganizationLogin)
+                } else {
+                    viewModel.loginChangeHandler(
+                        LoginFormEvent.EmployeeLogin
+                    )
+                } /* navigate.navigate("homeScreen") */
+            }, modifier = Modifier.weight(weight = 0.5f)
         ) {
             Text(text = "Login")
         }

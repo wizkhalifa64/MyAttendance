@@ -17,13 +17,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AuthUi() {
+fun AuthUi(navController: NavHostController, role: String?) {
     val type = remember {
         mutableStateOf("register")
     }
+//    if (string != null) {
+//        Log.d("direction",string)
+//    }
     Scaffold {
         Column(
             modifier = Modifier
@@ -32,24 +36,29 @@ fun AuthUi() {
             verticalArrangement = Arrangement.Center
         ) {
             Spacer(modifier = Modifier.height(100.dp))
-            if (type.value == "register") {
-                RegisterScreen()
+            if (role == "EMPLOYEE") {
+                LogInScreen(role)
             } else {
-                LogInScreen()
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(text = "Log in your account")
-                TextButton(onClick = {
-                    type.value = if (type.value == "register") "login" else "register"
-                }) {
-                    Text(text = if (type.value == "register") "Log in" else "Register")
+                if (type.value == "register") {
+                    RegisterScreen()
+                } else {
+                    LogInScreen(role)
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(text = "Log in your account")
+                    TextButton(onClick = {
+                        type.value = if (type.value == "register") "login" else "register"
+                    }) {
+                        Text(text = if (type.value == "register") "Log in" else "Register")
+                    }
                 }
             }
+
+
         }
 
 

@@ -1,9 +1,12 @@
 package com.example.myattendance.ui.components.auth
 
 import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.exception.ApolloException
 import com.example.myattendance.CreateOrganizationMutation
+import com.example.myattendance.LoginEmployeeQuery
+import com.example.myattendance.LoginOrganizationQuery
 import com.example.myattendance.apolloClient
+import com.example.myattendance.type.EmployeeLoginInput
+import com.example.myattendance.type.OrganizationLogin
 import com.example.myattendance.type.OrganizationRegister
 
 class AuthService {
@@ -16,6 +19,26 @@ class AuthService {
                 body = OrganizationRegister(
                     name, email, password, value!!
                 )
+            )
+        ).execute()
+    }
+
+    suspend fun organizationLogin(
+        email: String, password: String
+    ): ApolloResponse<LoginOrganizationQuery.Data> {
+        return apolloClient.query(
+            LoginOrganizationQuery(
+                body = OrganizationLogin(email, password)
+            )
+        ).execute()
+    }
+
+    suspend fun employeeLogin(
+        email: String, password: String
+    ): ApolloResponse<LoginEmployeeQuery.Data> {
+        return apolloClient.query(
+            LoginEmployeeQuery(
+                body = EmployeeLoginInput(email, password)
             )
         ).execute()
     }
