@@ -6,13 +6,18 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apollographql.apollo3.exception.ApolloException
+import com.example.myattendance.datahandler.RealmOrganizationDataModel
 import com.example.myattendance.ui.components.validation.ValidateEmail
 import com.example.myattendance.ui.components.validation.ValidateMap
 import com.example.myattendance.ui.components.validation.ValidateString
 import com.example.myattendance.ui.components.validation.ValidationResult
+import io.realm.kotlin.Realm
+import io.realm.kotlin.RealmConfiguration
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import org.mongodb.kbson.ObjectId
+import java.time.LocalDateTime
 
 class RegisterHandlerViewModel(
     private val validateString: ValidateString = ValidateString(),
@@ -107,6 +112,19 @@ class RegisterHandlerViewModel(
 
                 }
                 res.data?.createOrganization?.let {
+                    val config =
+                        RealmConfiguration.create(schema = setOf(RealmOrganizationDataModel::class))
+                    val realm: Realm = Realm.open(config)
+                    realm.writeBlocking {
+                        copyToRealm(RealmOrganizationDataModel().apply {
+                            id = it.id.toString()
+                            orgName = it.name
+                            orgEmail = it.email
+                            isAdmin = it.isAdmin
+                            lastSubscribe = LocalDateTime.parse(it.lastSubscribe.toString())
+                            orgLocation = it.location
+                        })
+                    }
                     validationEventChannel.send(
                         ValidationEvent.Success(
                             it.token
@@ -117,8 +135,6 @@ class RegisterHandlerViewModel(
             } catch (e: ApolloException) {
                 e.message?.let { validationEventChannel.send(ValidationEvent.Error(it)) }
             }
-
-
         }
 
 

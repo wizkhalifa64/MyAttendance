@@ -86,6 +86,7 @@ dependencies {
 
     // Jetpack Compose Integration
     implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation("io.realm.kotlin:library-base:1.11.0")
 }
 apollo {
     service("service") {

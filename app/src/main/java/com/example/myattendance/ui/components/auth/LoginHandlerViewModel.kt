@@ -80,12 +80,12 @@ class LoginHandlerViewModel(
                 emailError = email.errorMessage,
                 passwordError = password.errorMessage,
             )
-            Log.d("Test","Err")
+//            Log.d("Test","Err")
             return
         }
         viewModelScope.launch {
             try {
-                Log.d("Test","hit")
+//                Log.d("Test","hit")
                 val res = AuthService().employeeLogin(
                     loginState.email,
                     loginState.password,

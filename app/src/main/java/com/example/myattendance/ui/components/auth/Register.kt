@@ -1,37 +1,32 @@
 package com.example.myattendance.ui.components.auth
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.MailOutline
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,27 +36,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import com.example.myattendance.datahandler.DataHandler
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(snackBarHostState: SnackbarHostState) {
     val viewModel = viewModel<RegisterHandlerViewModel>()
     val state = viewModel.registerState
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val dataStore = DataHandler(context)
-    val snackBarHostState = remember { SnackbarHostState() }
     LaunchedEffect(key1 = context) {
         viewModel.validationEvents.collect { event ->
             when (event) {
@@ -82,11 +72,10 @@ fun RegisterScreen() {
         }
     }
 
-    var mTextFieldSize by remember { mutableStateOf(Size.Zero) }
-    var mExpanded by remember { mutableStateOf(false) }
-    val icon = if (mExpanded) Icons.Filled.KeyboardArrowUp
-    else Icons.Filled.KeyboardArrowDown
-    val mCities = listOf(
+
+    var showBottomSheet by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
+    val countryList = listOf(
         mapOf("label" to "India", "value" to "91"),
         mapOf("label" to "United States OF America", "value" to "110"),
         mapOf("label" to "India", "value" to "91"),
@@ -123,11 +112,7 @@ fun RegisterScreen() {
                 )
             )
         },
-        modifier = Modifier
-            .fillMaxWidth()
-            .onGloballyPositioned { coordinates ->
-                mTextFieldSize = coordinates.size.toSize()
-            },
+        modifier = Modifier.fillMaxWidth(),
         leadingIcon = {
             Icon(
                 imageVector = Icons.Rounded.LocationOn, contentDescription = ""
@@ -137,7 +122,7 @@ fun RegisterScreen() {
         readOnly = true,
         label = { Text("Location") },
         trailingIcon = {
-            Icon(icon, "", Modifier.clickable { mExpanded = !mExpanded })
+            Icon(Icons.Filled.KeyboardArrowDown, "", Modifier.clickable { showBottomSheet = true })
         },
         supportingText = { state.locationError?.let { Text(text = state.locationError) } })
 
@@ -175,25 +160,36 @@ fun RegisterScreen() {
         isError = state.passwordError != null,
         label = { Text("Password") },
         supportingText = { state.passwordError?.let { Text(text = state.passwordError) } })
-    DropdownMenu(expanded = mExpanded,
-        onDismissRequest = { mExpanded = false },
-        modifier = Modifier.width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
-    ) {
-        mCities.forEach { label ->
-            DropdownMenuItem(text = { label["label"]?.let { it1 -> Text(text = it1) } }, onClick = {
-                viewModel.registerChangeHandler(
-                    RegisterOrgFormEvent.LocationChange(
-                        label
-                    )
-                )
-                mExpanded = false
-            })
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                showBottomSheet = false
+            }, sheetState = sheetState
+        ) {
+            Spacer(modifier = Modifier.height(20.dp))
+            countryList.forEach { label ->
+                DropdownMenuItem(text = { label["label"]?.let { it1 -> Text(text = it1) } },
+                    onClick = {
+                        viewModel.registerChangeHandler(
+                            RegisterOrgFormEvent.LocationChange(
+                                label
+                            )
+                        )
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showBottomSheet = false
+                            }
+                        }
+                    })
+            }
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
     Spacer(modifier = Modifier.height(12.dp))
     Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
         Button(
-            onClick = { viewModel.registerChangeHandler(RegisterOrgFormEvent.Submit) /* navigate.navigate("homeScreen") */ },
+            onClick = { viewModel.registerChangeHandler(RegisterOrgFormEvent.Submit) },
             modifier = Modifier.weight(weight = 0.5f)
         ) {
             Text(text = "Register")

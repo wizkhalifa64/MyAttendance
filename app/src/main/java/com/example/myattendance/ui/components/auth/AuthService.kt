@@ -13,11 +13,12 @@ class AuthService {
     suspend fun register(
         email: String, password: String, location: Map<String, String>, name: String
     ): ApolloResponse<CreateOrganizationMutation.Data> {
-        val value: Int? = location["value"]?.toInt()
+        val value: Int? = if (location["value"] == null) 0  else location["value"]?.toInt()
+        val locationData = if (value !== null) value else 0
         return apolloClient.mutation(
             CreateOrganizationMutation(
                 body = OrganizationRegister(
-                    name, email, password, value!!
+                    name, email, password, locationData
                 )
             )
         ).execute()

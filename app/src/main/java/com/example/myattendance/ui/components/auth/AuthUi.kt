@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -25,10 +27,10 @@ fun AuthUi(navController: NavHostController, role: String?) {
     val type = remember {
         mutableStateOf("register")
     }
-//    if (string != null) {
-//        Log.d("direction",string)
-//    }
-    Scaffold {
+    val snackBarHostState = remember { SnackbarHostState() }
+    Scaffold(snackbarHost = {
+        SnackbarHost(hostState = snackBarHostState)
+    }) {
         Column(
             modifier = Modifier
                 .padding(20.dp)
@@ -37,12 +39,12 @@ fun AuthUi(navController: NavHostController, role: String?) {
         ) {
             Spacer(modifier = Modifier.height(100.dp))
             if (role == "EMPLOYEE") {
-                LogInScreen(role)
+                LogInScreen(role, snackBarHostState)
             } else {
                 if (type.value == "register") {
-                    RegisterScreen()
+                    RegisterScreen(snackBarHostState)
                 } else {
-                    LogInScreen(role)
+                    LogInScreen(role, snackBarHostState)
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),

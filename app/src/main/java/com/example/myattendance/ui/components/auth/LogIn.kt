@@ -17,6 +17,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,12 +34,11 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun LogInScreen(role: String?) {
+fun LogInScreen(role: String?, snackBarHostState: SnackbarHostState) {
     val viewModel = viewModel<LoginHandlerViewModel>()
     val state = viewModel.loginState
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val snackBarHostState = remember { SnackbarHostState() }
     LaunchedEffect(key1 = context) {
         viewModel.validationEvents.collect { event ->
             when (event) {
@@ -53,9 +53,9 @@ fun LogInScreen(role: String?) {
 
                 is LoginHandlerViewModel.ValidationEvent.Error -> {
                     scope.launch {
-//                        snackBarHostState.showSnackbar(
-//                            message = event.err, duration = SnackbarDuration.Indefinite
-//                        )
+                        snackBarHostState.showSnackbar(
+                            message = event.err, duration = SnackbarDuration.Short
+                        )
                     }
                 }
             }
