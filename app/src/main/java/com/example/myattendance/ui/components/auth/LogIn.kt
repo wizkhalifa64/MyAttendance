@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myattendance.datahandler.DataHandler
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -39,14 +40,13 @@ fun LogInScreen(role: String?, snackBarHostState: SnackbarHostState) {
     val state = viewModel.loginState
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val dataStore = DataHandler(context)
     LaunchedEffect(key1 = context) {
         viewModel.validationEvents.collect { event ->
             when (event) {
                 is LoginHandlerViewModel.ValidationEvent.Success -> {
                     scope.launch {
-//                        snackBarHostState.showSnackbar(
-//                            message = "Success", duration = SnackbarDuration.Indefinite
-//                        )
+                        dataStore.setToken(event.token)
                     }
 
                 }
@@ -104,7 +104,7 @@ fun LogInScreen(role: String?, snackBarHostState: SnackbarHostState) {
         Button(
             onClick = {
                 if (role != null) {
-                    Log.d("Hit check",role)
+                    Log.d("Hit check", role)
                 }
                 if (role == "ADMIN") {
                     viewModel.loginChangeHandler(LoginFormEvent.OrganizationLogin)
