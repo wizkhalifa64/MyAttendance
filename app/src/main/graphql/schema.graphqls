@@ -25,20 +25,20 @@ scalar DateTime
 
 type Employee {
   id: Int!
-  employeeName: String!
+  employeeName: String
   employeeEmail: String!
-  profileImage: String!
+  profileImage: String
   employeeType: Int
   depertment: String
   employeeRole: Int
   employeeId: Int
-  employeeStatus: Boolean!
+  employeeStatus: Boolean
   account: String
   employeePassword: String!
-  country: Int!
-  isDelete: Boolean!
+  country: Int
+  isDelete: Boolean
   organizationId: String!
-  mobile: String!
+  mobile: String
   joiningDate: DateTime
   employeeAddress: JSON
   qualification: JSON
@@ -68,22 +68,9 @@ input EmployeeLoginInput {
 }
 
 input EmployeeRegisterInput {
-  employeeName: String!
   employeeEmail: String!
-  profileImage: String!
-  employeeType: Int
-  depertment: String
-  employeeRole: Int
-  employeeId: Int
-  account: String
   employeePassword: String!
-  country: Int!
   organizationId: String!
-  mobile: String!
-  joiningDate: DateTime
-  employeeAddress: JSON
-  qualification: JSON
-  access: EmployeeAccess
 }
 
 input GetEmployeeCriteria {

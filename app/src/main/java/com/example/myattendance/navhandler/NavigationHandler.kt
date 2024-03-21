@@ -12,7 +12,7 @@ import com.example.myattendance.ui.components.home.HomeScreen
 @Composable
 fun NavHandler(mainViewModel: MainViewModel) {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = Screens.Index.route) {
+    NavHost(navController, startDestination = Screens.Home.route) {
         composable(Screens.Index.route) { Index(navController) }
         composable(Screens.Auth.route + "{role}") { backStackEntry ->
             AuthUi(
