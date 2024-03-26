@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.myattendance.navhandler.Screens
+import com.example.myattendance.presentation.navhandler.Screens
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable

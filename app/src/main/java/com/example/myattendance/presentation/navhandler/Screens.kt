@@ -1,4 +1,4 @@
-package com.example.myattendance.navhandler
+package com.example.myattendance.presentation.navhandler
 
 sealed class Screens(val route: String){
     data object Auth: Screens("auth_screen/")

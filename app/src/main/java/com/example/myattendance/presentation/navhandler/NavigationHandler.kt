@@ -1,4 +1,4 @@
-package com.example.myattendance.navhandler
+package com.example.myattendance.presentation.navhandler
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
