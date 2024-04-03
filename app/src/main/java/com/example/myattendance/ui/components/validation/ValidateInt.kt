@@ -1,6 +1,6 @@
 package com.example.myattendance.ui.components.validation
 
-import android.util.Patterns
+import com.example.myattendance.presentation.validation.ValidationResult
 
 class ValidateInt {
     fun execute(value: Int): ValidationResult {

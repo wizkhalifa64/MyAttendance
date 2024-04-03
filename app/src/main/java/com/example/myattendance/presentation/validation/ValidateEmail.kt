@@ -1,7 +1,6 @@
-package com.example.myattendance.ui.components.validation
+package com.example.myattendance.presentation.validation
 
 import android.util.Patterns
-import com.example.myattendance.presentation.validation.ValidationResult
 
 class ValidateEmail {
     fun execute(email: String): ValidationResult {

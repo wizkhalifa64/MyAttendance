@@ -29,11 +29,13 @@ type Employee {
   employeeEmail: String!
   profileImage: String
   employeeType: Int
-  depertment: String
-  employeeRole: Int
-  employeeId: Int
+  department: String
+  employeeRole: String
+  employeeId: String
   employeeStatus: Boolean
-  account: String
+  accountNo: String
+  bankName: String
+  ifscCode: String
   employeePassword: String!
   country: Int
   isDelete: Boolean
@@ -43,6 +45,7 @@ type Employee {
   employeeAddress: JSON
   qualification: JSON
   access: JSON
+  documents: JSON
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -59,7 +62,7 @@ type EmployeeAttendance {
   orgId: String!
   clockIn: DateTime!
   clockOut: DateTime
-  createdAt: DateTime!
+  createdAt: NaiveDate!
 }
 
 input EmployeeLoginInput {
@@ -71,32 +74,66 @@ input EmployeeRegisterInput {
   employeeEmail: String!
   employeePassword: String!
   organizationId: String!
+  employeeRole: String
+  access: JSON
+}
+
+input GetAttendanceByDates {
+  startDate: DateTime
+  endDate: DateTime
+}
+
+type GetEmployeeByOrgIdResponse {
+  data: [Employee!]!
+  totalCount: Int!
+  pagination: ListPaginator!
 }
 
 input GetEmployeeCriteria {
   id: ObjectId!
-  pagination: ListPaginator!
+  pagination: paginator_input!
 }
 
 """A scalar that can represent any JSON value."""
 scalar JSON
 
-input ListPaginator {
-  limit: Int
-  offset: Int
-  skip: Int
+type ListPaginator {
+  limit: Int!
+  offset: Int!
 }
 
 type LoginResponse {
-  user: Employee!
+  id: Int!
+  employeeName: String
+  employeeEmail: String!
+  profileImage: String
+  employeeType: Int
+  department: String
+  employeeRole: String
+  employeeId: String
+  employeeStatus: Boolean
+  accountNo: String
+  bankName: String
+  ifscCode: String
+  country: Int
+  isDelete: Boolean
+  organizationId: String!
+  mobile: String
+  joiningDate: DateTime
+  employeeAddress: JSON
+  qualification: JSON
+  access: JSON
+  documents: JSON
+  createdAt: DateTime
+  updatedAt: DateTime
   token: String!
 }
 
 type Mutation {
   createEmployee(body: EmployeeRegisterInput!): Int!
   createPermission(body: EmployeeAccess!): String!
-  createAttendence: EmployeeAttendance!
-  updateAttendence: EmployeeAttendance!
+  createAttendance: EmployeeAttendance!
+  updateAttendance(attendanceId: Int!): EmployeeAttendance!
   createOrganization(body: OrganizationRegister!): OrganizationResponse!
   createRole(body: RoleInput!): String!
   updateRoleById(body: RoleInput!): String!
@@ -104,6 +141,17 @@ type Mutation {
   createOrganizationDetails(body: OrganizationDetailsRegisterInput!): String!
   updateOrganizationDetails(body: OrganizationDetailsRegisterInput!): String!
 }
+
+"""
+ISO 8601 calendar date without timezone.
+Format: %Y-%m-%d
+
+# Examples
+
+* `1994-11-13`
+* `2000-02-24`
+"""
+scalar NaiveDate
 
 scalar ObjectId
 
@@ -125,7 +173,11 @@ type OrganizationDetails {
   id: ObjectId
   orgName: String!
   orgId: ObjectId!
-  idActive: Boolean!
+  isActive: Boolean!
+  lastSubscribe: DateTime!
+  latitude: Float
+  longitude: Float
+  workingModel: WorkingModel
   address: OrgAddress
   employeeCount: Int!
   orgType: Int
@@ -139,7 +191,7 @@ type OrganizationDetails {
   endTime: Int!
   financialYearStart: String
   financialYearEnd: String
-  depertment: Int
+  department: Int
   notWorkingDays: [Int!]
   orgContact: String
   createdAt: DateTime!
@@ -158,6 +210,9 @@ input OrganizationDetailsRegisterInput {
   officeHour: Int
   startTime: Int!
   endTime: Int!
+  workingModel: WorkingModel
+  latitude: Float
+  longitude: Float
 }
 
 input OrganizationLogin {
@@ -196,20 +251,21 @@ enum PayStructureStatus {
 type Role {
   id: ObjectId
   name: String
-  position: Int
   parent: ObjectId
+  access: [Int!]
 }
 
 input RoleInput {
   id: ObjectId
   name: String!
-  position: Int!
+  access: [Access!]
   parent: ObjectId
 }
 
 type RootQuery {
   loginEmployee(body: EmployeeLoginInput!): LoginResponse!
-  getEmployeeListByOrgId(body: GetEmployeeCriteria!): String!
+  getEmployeeListByOrgId(body: GetEmployeeCriteria!): GetEmployeeByOrgIdResponse!
+  getAttendanceByDate(body: GetAttendanceByDates!): [EmployeeAttendance!]!
   loginOrganization(body: OrganizationLogin!): OrganizationResponse!
   getAllRole: [Role!]
   getAllOrganization: [OrganizationDetails!]!
@@ -220,6 +276,13 @@ input UpdateOrganizationsInput {
   picturePath: String
   paymentStructure: PayStructureStatus
   address: orgaddressinput
+}
+
+enum WorkingModel {
+  ONSITE
+  HYBRIDE
+  REMOTE
+  OTHER
 }
 
 input addressinput {
@@ -236,4 +299,9 @@ input orgaddressinput {
   housenumber: String
   state: String
   pin: String
+}
+
+input paginator_input {
+  limit: Int!
+  offset: Int!
 }

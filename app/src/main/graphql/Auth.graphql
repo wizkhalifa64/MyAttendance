@@ -18,8 +18,8 @@ mutation CreateOrganization($body: OrganizationRegister!) {
         roles {
             id
             name
-            position
             parent
+            access
         }
         lastSubscribe
         token
@@ -46,8 +46,8 @@ query LoginOrganization($body: OrganizationLogin!) {
         roles {
             id
             name
-            position
             parent
+            access
         }
         lastSubscribe
         token

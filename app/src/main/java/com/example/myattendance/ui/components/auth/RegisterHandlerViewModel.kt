@@ -7,16 +7,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apollographql.apollo3.exception.ApolloException
 import com.example.myattendance.datahandler.RealmOrganizationDataModel
-import com.example.myattendance.ui.components.validation.ValidateEmail
-import com.example.myattendance.ui.components.validation.ValidateMap
-import com.example.myattendance.ui.components.validation.ValidateString
-import com.example.myattendance.ui.components.validation.ValidationResult
+import com.example.myattendance.presentation.validation.ValidateEmail
+import com.example.myattendance.presentation.validation.ValidateMap
+import com.example.myattendance.presentation.validation.ValidateString
+import com.example.myattendance.presentation.validation.ValidationResult
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import org.mongodb.kbson.ObjectId
 import java.time.LocalDateTime
 
 class RegisterHandlerViewModel(

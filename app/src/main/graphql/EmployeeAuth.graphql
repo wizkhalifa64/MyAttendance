@@ -1,27 +1,28 @@
 query LoginEmployee($body: EmployeeLoginInput!) {
     loginEmployee(body: $body) {
-        user {
-            id
-            employeeName
-            employeeEmail
-            profileImage
-            employeeType
-            depertment
-            employeeRole
-            employeeId
-            employeeStatus
-            account
-            country
-            isDelete
-            organizationId
-            mobile
-            joiningDate
-            employeeAddress
-            qualification
-            access
-            createdAt
-            updatedAt
-        }
+        id
+        employeeName
+        employeeEmail
+        profileImage
+        employeeType
+        department
+        employeeRole
+        employeeId
+        employeeStatus
+        accountNo
+        bankName
+        ifscCode
+        country
+        isDelete
+        organizationId
+        mobile
+        joiningDate
+        employeeAddress
+        qualification
+        access
+        documents
+        createdAt
+        updatedAt
         token
     }
 }

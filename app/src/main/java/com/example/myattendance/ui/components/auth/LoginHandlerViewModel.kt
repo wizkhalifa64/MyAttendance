@@ -1,15 +1,14 @@
 package com.example.myattendance.ui.components.auth
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apollographql.apollo3.exception.ApolloException
-import com.example.myattendance.ui.components.validation.ValidateEmail
-import com.example.myattendance.ui.components.validation.ValidateString
-import com.example.myattendance.ui.components.validation.ValidationResult
+import com.example.myattendance.presentation.validation.ValidateEmail
+import com.example.myattendance.presentation.validation.ValidateString
+import com.example.myattendance.presentation.validation.ValidationResult
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
