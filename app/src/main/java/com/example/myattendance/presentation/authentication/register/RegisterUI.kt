@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -23,6 +24,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun RegisterUI() {
     val viewModel = viewModel<RegisterViewModel>()
     val state = viewModel.registerState
+    LaunchedEffect(key1 = state) {
+        
+    }
     Column(modifier = Modifier.padding(20.dp)) {
         Spacer(modifier = Modifier.height(50.dp))
         Text(
